@@ -24,6 +24,7 @@ module Clang.HighLevel.Types (
   , diagnosticIsError
     -- * Folds
   , Fold
+  , HandlerResult(..)
   , Next
     -- ** Construction
   , simpleFold

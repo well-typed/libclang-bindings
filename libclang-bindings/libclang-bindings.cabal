@@ -103,6 +103,7 @@ library
     Clang.HighLevel.Wrappers
     Clang.Internal.ConstPtr
     Clang.Internal.CXString
+    Clang.Internal.Exception
     Clang.Internal.FFI
     Clang.Internal.Ptr
     Clang.Internal.Results

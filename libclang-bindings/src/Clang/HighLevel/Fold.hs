@@ -4,6 +4,7 @@
 module Clang.HighLevel.Fold (
     -- * Folds
     Fold -- opaque
+  , HandlerResult(..)
   , Next -- opaque
     -- * Construction
   , simpleFold
@@ -26,7 +27,7 @@ module Clang.HighLevel.Fold (
   , clang_visitChildren
   ) where
 
-import Control.Exception (Exception (..), SomeException)
+import Control.Exception (Exception (..))
 import Control.Exception qualified as Base
 import Control.Monad (forM_)
 import Control.Monad.IO.Class (MonadIO, liftIO)
@@ -35,6 +36,7 @@ import Data.IORef
 import GHC.Stack
 
 import Clang.Enum.Simple
+import Clang.Internal.Exception
 import Clang.LowLevel.Core hiding (clang_visitChildren)
 import Clang.LowLevel.Core qualified as Core
 
@@ -53,7 +55,7 @@ import Clang.LowLevel.Core qualified as Core
 -- This provides for a much nicer user experience.
 data Fold m a = Fold{
       foldNext    :: CXCursor -> m (Next m a)
-    , foldHandler :: CXCursor -> SomeException -> m (Maybe a)
+    , foldHandler :: CXCursor -> ExactException -> m (HandlerResult (Maybe a))
     }
 
 -- | Construct simple fold
@@ -63,8 +65,8 @@ simpleFold :: forall m a. MonadIO m => (CXCursor -> m (Next m a)) -> Fold m a
 simpleFold foldNext =
     Fold{foldNext, foldHandler}
   where
-    foldHandler :: CXCursor -> SomeException -> m (Maybe a)
-    foldHandler _curr = liftIO . throwIO
+    foldHandler :: CXCursor -> ExactException -> m (HandlerResult (Maybe a))
+    foldHandler _curr _e = return HandlerRethrow
 
 -- | Fold with exception handler
 --
@@ -155,7 +157,7 @@ simpleFold foldNext =
 --
 -- > foldStruct :: Fold IO [Text]
 -- > foldStruct =
--- >     foldWithHandler (\_curr -> return . Just . hasUnexpectedField) $ \curr -> do
+-- >     foldWithHandler (\_curr -> return . HandlerResult . Just . hasUnexpectedField) $ \curr -> do
 -- >       -- .. body as before
 --
 -- With this handler in place, we will get the expected result
@@ -166,17 +168,17 @@ simpleFold foldNext =
 -- which behaves /as if/ the fold truly made recursive calls.
 foldWithHandler :: forall m e a.
      (MonadIO m, Exception e)
-  => (CXCursor -> e -> m (Maybe a)) -- ^ Exception handler
+  => (CXCursor -> e -> m (HandlerResult (Maybe a))) -- ^ Exception handler
   -> (CXCursor -> m (Next m a))
   -> Fold m a
 foldWithHandler handler foldNext =
     Fold{foldNext, foldHandler}
   where
-    foldHandler :: CXCursor -> SomeException -> m (Maybe a)
-    foldHandler curr e =
-        case fromException e of
+    foldHandler :: CXCursor -> ExactException -> m (HandlerResult (Maybe a))
+    foldHandler curr (WrapExactException se) =
+        case fromException se of
           Just e' -> handler curr e'
-          Nothing -> liftIO $ throwIO e
+          Nothing -> return HandlerRethrow
 
 -- | An exception that is caught during folding
 data FoldException e = FoldException {
@@ -203,15 +205,15 @@ foldTry foldNext = foldWithHandler handler foldNext'
 
     handler ::
          CXCursor
-      -> SomeException
-      -> m (Maybe (Either (FoldException e) a))
-    handler curr err
-      | Just e <- fromException @e err = do
-          pure $ Just $ Left $ FoldException {
+      -> ExactException
+      -> m (HandlerResult (Maybe (Either (FoldException e) a)))
+    handler curr (WrapExactException se)
+      | Just e <- fromException @e se = do
+          return $ HandlerResult $  Just $ Left $ FoldException {
               exception = e
             , cursor = curr
             }
-      | otherwise = liftIO $ throwIO err
+      | otherwise = return $ HandlerRethrow
 
 -- | Result of visiting one node
 --
@@ -302,29 +304,8 @@ instance Functor m => Functor (Next m) where
 instance Functor m => Functor (Fold m) where
   fmap f Fold{foldNext, foldHandler} = Fold{
         foldNext    = \curr -> fmap (fmap f) $ foldNext curr
-      , foldHandler = \curr -> fmap (fmap f) . foldHandler curr
+      , foldHandler = \curr -> fmap (fmap (fmap f)) . foldHandler curr
       }
-
-{-------------------------------------------------------------------------------
-  Internal: exception handling
-
-  We do not use @handle@ from @unlift@, as it excludes async exceptions, and we
-  want it to be up to the exception handler to decide if it wants to deal with
-  async exceptions or not.
--------------------------------------------------------------------------------}
-
-throwIO :: (MonadIO m, Exception e) => e -> m a
-throwIO = liftIO . Base.throwIO
-
-type RunInIO m = forall a. m a -> IO a
-
-handleUnliftUsing ::
-     ( MonadIO n
-     , Exception e
-     )
-  => RunInIO m -> (e -> m a) -> m a -> n a
-handleUnliftUsing runInIO handler action = liftIO $
-    Base.handle (runInIO . handler) (runInIO action)
 
 {-------------------------------------------------------------------------------
   Internal: partial results
@@ -333,7 +314,7 @@ handleUnliftUsing runInIO handler action = liftIO $
   the clang C library. They do not need to be (nor are) thread safe.
 -------------------------------------------------------------------------------}
 
-type PartialResults a = IORef (Either SomeException [a])
+type PartialResults a = IORef (Either ExactException [a])
 
 newPartialResults :: IO (PartialResults a)
 newPartialResults = newIORef (Right [])
@@ -345,7 +326,7 @@ addPartialResult ref x = do
       Left  oldErr -> unexpectedException oldErr
       Right xs     -> writeIORef ref $ Right (x:xs)
 
-recordException :: HasCallStack => PartialResults a -> SomeException -> IO ()
+recordException :: HasCallStack => PartialResults a -> ExactException -> IO ()
 recordException ref newErr = do
     mResults <- readIORef ref
     case mResults of
@@ -362,7 +343,7 @@ recordException ref newErr = do
 -- propagate (it will be caught in the low-level 'Core.clang_visitChildren'
 -- function). However, that's okay: if this @error@ ever triggers, it indicates
 -- a bug in this infrastructure, which can't really be handlded anyway.
-unexpectedException :: HasCallStack => SomeException -> IO a
+unexpectedException :: HasCallStack => ExactException -> IO a
 unexpectedException oldErr = error $ concat [
       "The impossible happened: we break at the first exception, "
     , "yet here we are: " ++ show oldErr ++ ".\n"
@@ -373,7 +354,7 @@ getPartialResults :: MonadIO m => PartialResults a -> m [a]
 getPartialResults ref = liftIO $ do
     mResults <- readIORef ref
     case mResults of
-      Left  e  -> throwIO e
+      Left  e  -> throwExact e
       Right xs -> return (reverse xs)
 
 partialResultsIsException :: PartialResults a -> IO Bool
@@ -465,7 +446,7 @@ popUntil runInIO someStack newParent = do
             Bottom _ ->
               error "popUntil: something has gone horribly wrong"
             Push p summarize (stack' :: Stack m b) -> do
-              let handler :: SomeException -> m (Maybe b)
+              let handler :: ExactException -> m (HandlerResult (Maybe b))
                   handler = foldHandler (topFold stack') (parent p)
               mb <- Base.try $
                 handleUnliftUsing runInIO handler $
@@ -508,7 +489,7 @@ clang_visitChildren root topLevelFold = withRunInIO $ \runInIO -> do
         popUntil runInIO someStack parent
         SomeStack (stack :: Stack m x) <- readIORef someStack
 
-        let foldHandler    :: CXCursor -> SomeException -> m (Maybe x)
+        let foldHandler    :: CXCursor -> ExactException -> m (HandlerResult (Maybe x))
             foldNext       :: CXCursor -> m (Next m x)
             partialResults :: PartialResults x
             Processing{
@@ -521,7 +502,7 @@ clang_visitChildren root topLevelFold = withRunInIO $ \runInIO -> do
           return $ simpleEnum CXChildVisit_Continue
         else do
           next <- Base.try $
-            handleUnliftUsing runInIO (fmap Continue . foldHandler current) $
+            handleUnliftUsing runInIO (fmap (fmap Continue) . foldHandler current) $
               foldNext current
           case next of
             Right (Break ma) -> do
