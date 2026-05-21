@@ -48,27 +48,21 @@ case "$wt_with_so_path" in
     ;;
 esac
 
-dnl LLVM_CONFIG variable: Users may use this to specify which llvm-config
-dnl executable to use.
-AC_ARG_VAR(LLVM_CONFIG, [Location of llvm-config])
-AC_PATH_PROG([LLVM_CONFIG],[llvm-config],[])
-
-dnl LLVM_PATH variable: Users may alternatively specify the location of
-dnl an LLVM installation.
+dnl LLVM_PATH variable: This argument allows users to specify the location of
+dnl an LLVM installation, in which case llvm-config is not used.
 AC_ARG_VAR(LLVM_PATH, [Location of LLVM installation])
 
 dnl LLVM resolution:
-dnl 1. Use llvm-config specified by LLVM_CONFIG if set
+dnl 1. Use LLVM_PATH if set
 dnl 2. Use llvm-config in PATH if found
-dnl 3. Use LLVM_PATH if set
-dnl 4. Fail
+dnl 3. Fail if LLVM_PATH not set and llvm-config not in PATH
 AC_MSG_CHECKING([LLVM resolution mode])
-if test -n "$LLVM_CONFIG" ; then
-  AC_MSG_RESULT([llvm-config])
+if test -n "$LLVM_PATH" ; then
+  AC_MSG_RESULT([LLVM_PATH=$LLVM_PATH])
 else
-  if test -n "$LLVM_PATH" ; then
-    AC_MSG_RESULT([LLVM_PATH=$LLVM_PATH])
-  else
+  AC_MSG_RESULT([llvm-config])
+  AC_PATH_PROG([LLVM_CONFIG],[llvm-config],[])
+  if test -z "$LLVM_CONFIG" ; then
     AC_MSG_ERROR([llvm-config not found and LLVM_PATH not set])
   fi
 fi
@@ -76,7 +70,9 @@ fi
 dnl If using llvm-config, get the version.  This also checks that we can run
 dnl llvm-config.
 AC_MSG_CHECKING([llvm-config version])
-if test -n "$LLVM_CONFIG" ; then
+if test -n "$LLVM_PATH" ; then
+  AC_MSG_RESULT([skipped])
+else
   wt_llvm_config_version="$("$LLVM_CONFIG" --version)"
   if test $? -eq 0 ; then
     AC_MSG_RESULT([$wt_llvm_config_version])
@@ -84,8 +80,6 @@ if test -n "$LLVM_CONFIG" ; then
     AC_MSG_RESULT([error])
     AC_MSG_ERROR([could not run llvm-config])
   fi
-else
-  AC_MSG_RESULT([skipped])
 fi
 
 # WT_PARSE_VERSION(VERSION_STRING)
@@ -216,10 +210,10 @@ dnl LLVM library directory resolution:
 dnl 1. Use llvm-config or LLVM_PATH to determine the real library directory
 dnl 2. Append user-specified library directory if --with-so is used
 AC_MSG_CHECKING([LLVM library directories])
-if test -n "$LLVM_CONFIG" ; then
-  wt_clang_lib_dirs="$("$LLVM_CONFIG" --libdir)"
-else
+if test -n "$LLVM_PATH" ; then
   wt_clang_lib_dirs="${LLVM_PATH}/lib"
+else
+  wt_clang_lib_dirs="$("$LLVM_CONFIG" --libdir)"
 fi
 dnl LDFLAGS environment variable is set for checks below
 if test -n "$wt_user_lib_dir" && test "$wt_user_lib_dir" != "$wt_clang_lib_dirs"; then
@@ -234,10 +228,10 @@ AC_SUBST([CLANG_LIB_DIRS], ["$wt_clang_lib_dirs"])
 dnl LLVM include directory resolution logic:
 dnl 1. Use llvm-config or LLVM_PATH to determine the include directory
 AC_MSG_CHECKING([LLVM include directory])
-if test -n "$LLVM_CONFIG" ; then
-  wt_clang_include_dir="$("$LLVM_CONFIG" --includedir)"
-else
+if test -n "$LLVM_PATH" ; then
   wt_clang_include_dir="${LLVM_PATH}/include"
+else
+  wt_clang_include_dir="$("$LLVM_CONFIG" --includedir)"
 fi
 dnl CPPFLAGS environment variable is set for checks below
 CPPFLAGS="${CPPFLAGS} -I${wt_clang_include_dir}"

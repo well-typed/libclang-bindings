@@ -4,6 +4,9 @@
 
 ### Breaking changes
 
+* Removed `LLVM_CONFIG` configuration variable.  Configure `PATH` so that the
+  desired `llvm-config` is found instead.
+
 ### New features
 
 * Add a binding for `clang_isBeforeInTranslationUnit`. This function is only

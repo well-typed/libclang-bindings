@@ -98,11 +98,6 @@ library directories.  If you have more than one version of LLVM/Clang installed,
 you can configure your `PATH` to ensure that the `llvm-config` for the version
 that you want to use is found.
 
-Alternatively, you can configure the `LLVM_CONFIG` environment variable to the
-path of the `llvm-config` that you want to use.  If you use this environment
-variable, it should remain set while using `libclang-bindings`, not just during
-configuration.
-
 ### Using `LLVM_PATH`
 [t:using-llvm-path]: #using-llvm_path
 
@@ -366,8 +361,8 @@ environment used for building the package.
 
 * The `PATH` must resolve the same LLVM/Clang executables (and `.DLL` files on
   Windows) as when the library was built, modulo patch upgrades.
-* If `LLVM_CONFIG` or `LLVM_PATH` are used when building, they must also be set
-  when using the library.
+* If `LLVM_PATH` is used when building, it must also be set when using the
+  library.
 
 `cabal.project.local` configuration used to work around Cabal issues is required
 for any project that (directly or indirectly) uses `libclang-bindings`.

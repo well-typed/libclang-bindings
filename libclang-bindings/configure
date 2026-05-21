@@ -660,8 +660,8 @@ CC
 CLANG_INCLUDE_DIR
 CLANG_LIB_DIRS
 CLANG_LIB
-LLVM_PATH
 LLVM_CONFIG
+LLVM_PATH
 target_alias
 host_alias
 build_alias
@@ -710,7 +710,6 @@ with_so
       ac_precious_vars='build_alias
 host_alias
 target_alias
-LLVM_CONFIG
 LLVM_PATH
 CC
 CFLAGS
@@ -1340,7 +1339,6 @@ Optional Packages:
   --with-so=PATH          shared library to link to
 
 Some influential environment variables:
-  LLVM_CONFIG Location of llvm-config
   LLVM_PATH   Location of LLVM installation
   CC          C compiler command
   CFLAGS      C compiler flags
@@ -2340,7 +2338,16 @@ printf "%s\n" "$as_me: with library: $wt_user_lib" >&6;}
 esac
 
 
-# Extract the first word of "llvm-config", so it can be a program name with args.
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking LLVM resolution mode" >&5
+printf %s "checking LLVM resolution mode... " >&6; }
+if test -n "$LLVM_PATH" ; then
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: LLVM_PATH=$LLVM_PATH" >&5
+printf "%s\n" "LLVM_PATH=$LLVM_PATH" >&6; }
+else
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: llvm-config" >&5
+printf "%s\n" "llvm-config" >&6; }
+  # Extract the first word of "llvm-config", so it can be a program name with args.
 set dummy llvm-config; ac_word=$2
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
 printf %s "checking for $ac_word... " >&6; }
@@ -2385,26 +2392,17 @@ printf "%s\n" "no" >&6; }
 fi
 
 
-
-
-
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking LLVM resolution mode" >&5
-printf %s "checking LLVM resolution mode... " >&6; }
-if test -n "$LLVM_CONFIG" ; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: llvm-config" >&5
-printf "%s\n" "llvm-config" >&6; }
-else
-  if test -n "$LLVM_PATH" ; then
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: LLVM_PATH=$LLVM_PATH" >&5
-printf "%s\n" "LLVM_PATH=$LLVM_PATH" >&6; }
-  else
+  if test -z "$LLVM_CONFIG" ; then
     as_fn_error $? "llvm-config not found and LLVM_PATH not set" "$LINENO" 5
   fi
 fi
 
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking llvm-config version" >&5
 printf %s "checking llvm-config version... " >&6; }
-if test -n "$LLVM_CONFIG" ; then
+if test -n "$LLVM_PATH" ; then
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: skipped" >&5
+printf "%s\n" "skipped" >&6; }
+else
   wt_llvm_config_version="$("$LLVM_CONFIG" --version)"
   if test $? -eq 0 ; then
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $wt_llvm_config_version" >&5
@@ -2414,9 +2412,6 @@ printf "%s\n" "$wt_llvm_config_version" >&6; }
 printf "%s\n" "error" >&6; }
     as_fn_error $? "could not run llvm-config" "$LINENO" 5
   fi
-else
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: skipped" >&5
-printf "%s\n" "skipped" >&6; }
 fi
 
 # WT_PARSE_VERSION(VERSION_STRING)
@@ -2546,10 +2541,10 @@ LIBS="${LIBS} -l${wt_clang_lib}"
 
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking LLVM library directories" >&5
 printf %s "checking LLVM library directories... " >&6; }
-if test -n "$LLVM_CONFIG" ; then
-  wt_clang_lib_dirs="$("$LLVM_CONFIG" --libdir)"
-else
+if test -n "$LLVM_PATH" ; then
   wt_clang_lib_dirs="${LLVM_PATH}/lib"
+else
+  wt_clang_lib_dirs="$("$LLVM_CONFIG" --libdir)"
 fi
 if test -n "$wt_user_lib_dir" && test "$wt_user_lib_dir" != "$wt_clang_lib_dirs"; then
   LDFLAGS="${LDFLAGS} -L${wt_user_lib_dir} -L${wt_clang_lib_dirs}"
@@ -2564,10 +2559,10 @@ CLANG_LIB_DIRS="$wt_clang_lib_dirs"
 
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking LLVM include directory" >&5
 printf %s "checking LLVM include directory... " >&6; }
-if test -n "$LLVM_CONFIG" ; then
-  wt_clang_include_dir="$("$LLVM_CONFIG" --includedir)"
-else
+if test -n "$LLVM_PATH" ; then
   wt_clang_include_dir="${LLVM_PATH}/include"
+else
+  wt_clang_include_dir="$("$LLVM_CONFIG" --includedir)"
 fi
 CPPFLAGS="${CPPFLAGS} -I${wt_clang_include_dir}"
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $wt_clang_include_dir" >&5
