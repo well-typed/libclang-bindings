@@ -57,10 +57,10 @@ descrTopLevel ex = AST.Descr $
     show ex ++ " at top-level"
 
 -- | Handler intended for use in folds
-handleAt :: CXCursor -> FoldException -> IO (Maybe (AST.Node AST.Descr))
+handleAt :: CXCursor -> FoldException -> IO (HandlerResult (Maybe (AST.Node AST.Descr)))
 handleAt curr ex = do
     node <- AST.descrAt curr
-    return $ Just $ AST.Node (descrAt node ex) $ AST.Siblings []
+    return $ HandlerResult $ Just $ AST.Node (descrAt node ex) $ AST.Siblings []
 
 -- | Top-level handler
 --
@@ -130,12 +130,12 @@ fold infoForCursor = go
                 Just n  -> Exception.throwIO $ FoldException n
                 Nothing -> return $ AST.Node node (AST.Siblings children)
 
-    handler :: CXCursor -> FoldException -> IO (Maybe (AST.Node AST.Descr))
+    handler :: CXCursor -> FoldException -> IO (HandlerResult (Maybe (AST.Node AST.Descr)))
     handler curr e = do
         info <- infoForCursor curr
         if exceptionHandler info
           then handleAt curr e
-          else Exception.throwIO e
+          else return HandlerRethrow
 
 parse :: (CXCursor -> IO Info) -> TestInput -> IO (AST AST.Descr)
 parse infoForCursor input =

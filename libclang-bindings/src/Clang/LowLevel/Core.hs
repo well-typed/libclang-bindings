@@ -251,6 +251,7 @@ import Clang.Enum.Simple
 import Clang.Internal.ByValue
 import Clang.Internal.ConstPtr (ConstPtr (ConstPtr, unConstPtr))
 import Clang.Internal.CXString ()
+import Clang.Internal.Exception
 import Clang.Internal.FFI
 import Clang.Internal.Ptr (safeCastPtr)
 import Clang.Internal.Results
@@ -930,23 +931,24 @@ clang_visitChildren ::
      -- returning 'CXChildVisit_Break'.
 clang_visitChildren root visitor = liftIO $ do
     -- reference cell for a possible exception thrown by 'visitor'.
-    eRef <- newIORef Nothing
-
-    visitor' <- mkCursorVisitor $ \current parent -> do
-      current' <- CXCursor <$> copyToHaskellHeap current
-      parent'  <- CXCursor <$> copyToHaskellHeap parent
-      try (visitor current' parent') >>= \case
-        Left exc -> do
-          writeIORef eRef (Just (exc :: SomeException))
-          return (simpleEnum CXChildVisit_Break)
-        Right x -> return x
-
-    res <- onHaskellHeap root $ \parent' ->
-      (/= 0) <$> wrap_visitChildren parent' visitor'
-
+    eRef :: IORef (Maybe ExactException) <- newIORef Nothing
+    res  :: Bool <-
+      bracket (mkCursorVisitor $ aux eRef) freeHaskellFunPtr $ \visitor' ->
+        onHaskellHeap root $ \parent' ->
+          (/= 0) <$> wrap_visitChildren parent' visitor'
     readIORef eRef >>= \case
       Nothing  -> return res
-      Just exc -> throwIO exc
+      Just exc -> throwExact exc
+  where
+    aux :: IORef (Maybe ExactException) -> WrapCXCursorVisitor
+    aux eRef current parent = do
+        current' <- CXCursor <$> copyToHaskellHeap current
+        parent'  <- CXCursor <$> copyToHaskellHeap parent
+        try (visitor current' parent') >>= \case
+          Left exc -> do
+            writeIORef eRef (Just (exc :: ExactException))
+            return (simpleEnum CXChildVisit_Break)
+          Right x -> return x
 
 {-------------------------------------------------------------------------------
   Cross-referencing in the AST

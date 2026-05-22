@@ -114,7 +114,7 @@ demo3 = do
   where
     foldStruct :: Fold IO [Text]
     foldStruct =
-        foldWithHandler (\_curr -> return . Just . hasUnexpectedField) $ \curr -> do
+        foldWithHandler (\_curr -> return . HandlerResult . Just . hasUnexpectedField) $ \curr -> do
           kind <- fromSimpleEnum <$> clang_getCursorKind curr
           case kind of
             Right CXCursor_StructDecl ->

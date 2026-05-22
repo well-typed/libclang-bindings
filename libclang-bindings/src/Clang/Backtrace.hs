@@ -70,7 +70,7 @@ collectBacktrace = return $ WrapStack callStack
 --
 -- > data CallFailed = CallFailed Backtrace
 -- >   deriving stock (Show)
--- >   deriving Exception via CollectedBacktrac CallFailed
+-- >   deriving Exception via CollectedBacktrace CallFailed
 newtype CollectedBacktrace a = CollectedBacktrace a
   deriving newtype Show
 
