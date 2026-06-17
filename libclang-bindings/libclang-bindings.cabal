@@ -82,6 +82,7 @@ library
     Clang.Args
     Clang.Backtrace
     Clang.CStandard
+    Clang.Discover
     Clang.Enum.Bitfield
     Clang.Enum.Simple
     Clang.HighLevel
@@ -123,12 +124,16 @@ library
 
   -- External dependencies
   build-depends:
-    , bytestring        >=0.11  && <0.13
-    , data-default      >=0.7   && <0.9
-    , exceptions        >=0.10  && <0.11
-    , template-haskell  >=2.18  && <2.25
-    , text              >=1.2   && <2.2
-    , unliftio-core     >=0.2.1 && <0.3
+    , bytestring        >=0.11    && <0.13
+    , data-default      >=0.7     && <0.9
+    , directory         >=1.3.6.2 && <1.4
+    , exceptions        >=0.10    && <0.11
+    , filepath          >=1.4     && <1.6
+    , process           >=1.6     && <1.7
+    , template-haskell  >=2.18    && <2.25
+    , text              >=1.2     && <2.2
+    , transformers      >=0.5     && <0.7
+    , unliftio-core     >=0.2.1   && <0.3
 
   -- C bindings
   if impl(ghc <9.4)
@@ -164,6 +169,7 @@ test-suite test-clang-bindings
     LambdaCase
 
   other-modules:
+    Test.Discover
     Test.Meta.IsConcrete
     Test.Test.Exceptions
     Test.Util.AST
@@ -186,8 +192,9 @@ test-suite test-clang-bindings
 
   -- New dependencies
   build-depends:
-    , containers        >=0.6  && <0.9
-    , QuickCheck        >=2.14 && <2.18
-    , tasty             >=1.5  && <1.6
-    , tasty-hunit       >=0.10 && <0.11
-    , tasty-quickcheck  >=0.11 && <0.12
+    , containers        >=0.6     && <0.9
+    , directory         >=1.3.6.2 && <1.4
+    , QuickCheck        >=2.14    && <2.18
+    , tasty             >=1.5     && <1.6
+    , tasty-hunit       >=0.10    && <0.11
+    , tasty-quickcheck  >=0.11    && <0.12
