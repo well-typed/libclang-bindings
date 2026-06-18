@@ -23,6 +23,8 @@
   `Clang.Version.checkUserClangVersion` documentation for details.
 * Add `--with-so` option to the `configure` script, used to work around Cabal
   linking issues.
+* Add the `Clang.Discover` module, providing `getPaths` to discover the `clang`
+  executable and the builtin include directory.
 
 ### Minor changes
 
