@@ -153,7 +153,7 @@ jobs:
           git config --global core.eol lf
 
       - name: "[checkout] Checkout repository"
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: "[checkout] Create tmate session"
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_tmate == 'checkout' }}
