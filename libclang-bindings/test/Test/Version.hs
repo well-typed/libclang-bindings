@@ -77,8 +77,8 @@ plausible :: (Int, Int, Int) -> Bool
 plausible version@(major, _minor, _patch) = or [
       version `elem` historicReleases
 
-      -- For the current version we don't know which minor/patch to expect
-    , major == 21
+      -- For the current versions we don't know which minor/patch to expect
+    , major `elem` [21, 22]
     ]
 
 -- | Historic @llvm@ releases
