@@ -21,7 +21,8 @@ import Clang.LowLevel.FFI
 {-------------------------------------------------------------------------------
   Translation to bytestrings
 
-  TODO: <https://github.com/well-typed/hs-bindgen/issues/96>
+  TODO <https://github.com/well-typed/libclang-bindings/issues/70>
+
   We could consider trying to deduplicate.
 -------------------------------------------------------------------------------}
 
@@ -60,9 +61,8 @@ newtype CXString = CXString (OnHaskellHeap CXString_)
 
 -- | Retrieve the character data associated with the given string.
 --
--- We use @ccall@ rather than @capi@ here to avoid compiler warning about
--- casting @const char *@ to @char *@ (we make a copy of the C string and then
--- do not use it again, so it's safe).
+-- We use @capi@ together with 'ConstPtr' here to avoid a compiler warning
+-- about qualifying the @const@-ness of @const char *@ (see "Clang.Internal.ConstPtr").
 --
 -- <https://clang.llvm.org/doxygen/group__CINDEX__STRING.html#gabe1284209a3cd35c92e61a31e9459fe7>
 clang_getCString :: CXString -> IO CString

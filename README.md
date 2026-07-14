@@ -1,18 +1,16 @@
 # `libclang-bindings`
 
 [![Build Status](https://github.com/well-typed/libclang-bindings/actions/workflows/haskell.yml/badge.svg)](https://github.com/well-typed/libclang-bindings/actions)
-[![License: BSD-3-Clause](https://img.shields.io/badge/license-BSD--3--Clause-lightgray.svg)](https://github.com/well-typed/hs-bindgen/blob/main/hs-bindgen/LICENSE)
+[![License: BSD-3-Clause](https://img.shields.io/badge/license-BSD--3--Clause-lightgray.svg)](https://github.com/well-typed/libclang-bindings/blob/main/LICENSE)
 
 `libclang-bindings` is a [Haskell][] library that provides bindings for the
-[LLVM/Clang][] `libclang` C API.  It supports the [`hs-bindgen`][] project but
+[LLVM/Clang][] `libclang` C API. It supports the [`hs-bindgen`][] project but
 can be used independently.
 
-> [!WARNING]
-> This project has not had an official release yet.  There is a wide variety of
-> C (and C preprocessor) code in the world, so we are currently soliciting
-> feedback prior to the first official release of [`hs-bindgen`][].  Please try
-> it out!  If something breaks, please check the [issues][] to see if the
-> problem is already known, and open an issue if not.
+> [!NOTE]
+> This is an early release. C (and C preprocessor) code varies widely, so we
+> welcome feedback. If something breaks, please check the [issues][] to see if
+> it is already known, and open an issue if not.
 
 [Haskell]: https://www.haskell.org/
 [issues]: https://github.com/well-typed/libclang-bindings/issues
@@ -34,7 +32,7 @@ can be used independently.
 ## Contribution
 
 Our thanks go to those who have contributed to this project with development,
-bug reports, feature requests, blog posts, etc.  We list
+bug reports, feature requests, blog posts, etc. We list
 [contributors](https://github.com/well-typed/hs-bindgen#contributors)
 in the `hs-bindgen` README.
 

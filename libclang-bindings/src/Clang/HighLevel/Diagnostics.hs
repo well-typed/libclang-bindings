@@ -37,7 +37,7 @@ data Diagnostic = Diagnostic {
       -- | The command line option that enabled this diagnostic
     , diagnosticOption :: Maybe Text
 
-      -- | The @libclang@ option to disable this option
+      -- | The @libclang@ option to disable this diagnostic
     , diagnosticDisabledBy :: Maybe Text
 
       -- | Diagnostic category

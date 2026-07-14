@@ -129,7 +129,7 @@ simpleEnum = SimpleEnum . simpleToC
 --
 -- The 'CInt' may be outside the range of the 'SimpleEnum'.
 --
--- > forall (y :: CInt). if   simpleFromEnum (coerceSimpleEnum y) == Right x
+-- > forall (y :: CInt). if   fromSimpleEnum (coerceSimpleEnum y) == Right x
 -- >                     then simpleEnum x == coerceSimpleEnum y
 coerceSimpleEnum :: CInt -> SimpleEnum hs
 coerceSimpleEnum = coerce

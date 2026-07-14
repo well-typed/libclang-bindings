@@ -33,7 +33,7 @@ data ClangVersion =
 
     -- | Unknown version
     --
-    -- We get the version by parsing the result of 'clang_getClangVersion',
+    -- We get the version by parsing the result of @clang_getClangVersion@,
     -- which explicitly says
     --
     -- > Return a version string, suitable for showing to a user, but not
@@ -41,7 +41,7 @@ data ClangVersion =
     --
     -- Unfortunately, @libclang@ does not provide any other means of getting
     -- the version number. We therefore parse the string anyway, and use
-    -- 'UnknownClangVersion' when that fails.
+    -- 'ClangVersionUnknown' when that fails.
     --
     -- NOTE: While @Index.h@ does provide @CINDEX_VERSION_MAJOR@ (which is
     -- always zero) and @CINDEX_VERSION_MINOR@, unfortunately they do not map
@@ -53,7 +53,7 @@ data ClangVersion =
 
 -- | Parse clang version string
 --
--- 'clang_getClangVersion' may return something like
+-- @clang_getClangVersion@ may return something like
 --
 -- > "Ubuntu clang version 14.0.0-1ubuntu1.1"
 -- > "Ubuntu clang version 18.1.3 (1ubuntu1)"

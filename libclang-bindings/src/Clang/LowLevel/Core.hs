@@ -290,7 +290,7 @@ clang_createIndex diagnostics = liftIO $
     diagnostics' :: CInt
     diagnostics' =
         case diagnostics of
-          DisplayDiagnostics     -> 0
+          DisplayDiagnostics     -> 1
           DontDisplayDiagnostics -> 0
 
 -- | Destroy the given index.
@@ -454,7 +454,7 @@ clang_getDiagnosticCategory diagnostic = liftIO $
 
 -- | Retrieve the diagnostic category text for a given diagnostic.
 --
--- <https://clang.llvm.org/doxygen/group__CINDEX__DIAG.html#ga6950702b6122f1cd74e1a369605a9f54>>
+-- <https://clang.llvm.org/doxygen/group__CINDEX__DIAG.html#ga6950702b6122f1cd74e1a369605a9f54>
 clang_getDiagnosticCategoryText :: MonadIO m => CXDiagnostic -> m Text
 clang_getDiagnosticCategoryText diagnostic = liftIO $
     preallocate_ $ wrap_getDiagnosticCategoryText diagnostic
@@ -663,9 +663,9 @@ clang_TargetInfo_getTriple info = liftIO $ ensure (not . Text.null) $
 -- * 'clang_getTranslationUnitCursor' produces a cursor for a translation unit,
 --   from which one can use 'clang_visitChildren' to explore the rest of the
 --   translation unit.
--- * 'clang_getCursor' maps from a physical source location to the entity that
---   resides at that location, allowing one to map from the source code into the
---   AST.
+-- * @clang_getCursor@ maps from a physical source location to the entity that
+--   resides at that location, allowing one to map from the source code into
+--   the AST. (Not currently exposed by this library.)
 --
 -- <https://clang.llvm.org/doxygen/structCXCursor.html>
 newtype CXCursor = CXCursor (OnHaskellHeap CXCursor_)
@@ -802,7 +802,7 @@ clang_getCursorKind cursor = liftIO $
 -- (https://clang.llvm.org/doxygen/group__CINDEX__DEBUG.html). This should be
 -- used only for testing and debugging, and should not be relied upon.
 --
--- <https://clang.llvm.org/doxygen/group__CINDEX__DEBUG.html#ga7a4eecfc1b343568cb9ea447cbde08a8
+-- <https://clang.llvm.org/doxygen/group__CINDEX__DEBUG.html#ga7a4eecfc1b343568cb9ea447cbde08a8>
 clang_getCursorKindSpelling :: MonadIO m => SimpleEnum CXCursorKind -> m Text
 clang_getCursorKindSpelling kind = liftIO $
     preallocate_ $ wrap_getCursorKindSpelling kind
@@ -882,10 +882,10 @@ clang_Cursor_getVarDeclInitializer cursor = liftIO $
 -- <https://clang.llvm.org/doxygen/group__CINDEX__CURSOR__TRAVERSAL.html#gabf842c9ee20048b596eb9dfe94bb1570>
 type WrapCXCursorVisitor =
      Ptr CXCursor_ -- ^ The cursor being visited.
-  -> Ptr CXCursor_ -- ^ The parent visitor for that cursor.
+  -> Ptr CXCursor_ -- ^ The parent of the cursor being visited.
   -> IO (SimpleEnum CXChildVisitResult)
      -- ^ The visitor should return one of the 'CXChildVisitResult' values to
-     -- direct 'clang_visitCursorChildren'.
+     -- direct 'clang_visitChildren'.
 
 foreign import ccall "wrapper"
   mkCursorVisitor :: WrapCXCursorVisitor -> IO (FunPtr WrapCXCursorVisitor)
@@ -1712,7 +1712,7 @@ newtype CXTokenArray = CXTokenArray (Ptr CXToken_)
 -- tokens.
 --
 -- Returns the array of tokens and the number of tokens in the array. The array
--- must be disposed using 'clang_disponseTokens' before the translation unit is
+-- must be disposed using 'clang_disposeTokens' before the translation unit is
 -- destroyed.
 clang_tokenize ::
      MonadIO m
@@ -1891,7 +1891,7 @@ clang_getSpellingLocation location = liftIO $
 -- Returns 'True' if the first source location comes strictly before the
 -- second one, 'False' otherwise.
 --
--- <https://clang.llvm.org/doxygen/group__CINDEX__LOCATIONS.html#ga01f1a342f7807ea742aedd2c61c46fa0>
+-- <https://clang.llvm.org/doxygen/group__CINDEX__LOCATIONS.html#gad0191c9ccd1ba6eeb222b488e458a0f8>
 --
 -- 'clang_isBeforeInTranslationUnit' is not available for Clang versions older than 20.1.
 clang_isBeforeInTranslationUnit ::

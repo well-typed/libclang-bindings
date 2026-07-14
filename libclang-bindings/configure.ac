@@ -1,5 +1,5 @@
 AC_PREREQ([2.71])
-AC_INIT([libclang-bindings],[0.1.0])
+AC_INIT([libclang-bindings],[0.1.0.0])
 
 dnl --with-compiler argument: This argument is passed by Cabal, so we have to
 dnl handle it.  We do not use it, so we ignore the passed value.

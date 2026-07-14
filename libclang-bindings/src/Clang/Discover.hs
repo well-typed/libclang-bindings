@@ -140,9 +140,7 @@ data DiscoverMsg =
 --
 -- LLVM/Clang determines the builtin include directory based on the path of the
 -- @clang@ executable being run. When using @libclang@, there is not enough
--- information to determine the absolute builtin include directory. @hs-bindgen@
--- can attempt to determine and configure the builtin include directory
--- automatically so that users do not have to do so manually.
+-- information to determine the absolute builtin include directory.
 --
 -- Upstream issues:
 --

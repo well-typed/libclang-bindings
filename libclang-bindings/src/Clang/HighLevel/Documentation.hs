@@ -38,10 +38,9 @@ import Clang.LowLevel.Doxygen
 -- @'Maybe' 'Comment'@ is used instead, where a @CXComment_Null@ comment is
 -- represented by 'Nothing'.
 --
--- The 'ref' type parameter is to be filled on the hs-bindgen
--- so that we can have a type that is able to go through all the name mangling
--- passes. This data type will allow one to cross reference C identifiers when
--- translating from Doxygen to Haddocks.
+-- The 'ref' type parameter is to be filled by the user. This data type will
+-- allow one to cross reference C identifiers when translating from Doxygen to
+-- Haddocks.
 --
 newtype Comment ref = Comment {
       -- | Children of a the comment

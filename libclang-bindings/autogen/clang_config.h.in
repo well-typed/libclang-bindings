@@ -1,6 +1,6 @@
 /* autogen/clang_config.h.in.  Generated from configure.ac by autoheader.  */
 
-/* Define to 1 if you have the `clang_isBeforeInTranslationUnit' function. */
+/* Define to 1 if you have the 'clang_isBeforeInTranslationUnit' function. */
 #undef HAVE_CLANG_ISBEFOREINTRANSLATIONUNIT
 
 /* Define to 1 if you have the <inttypes.h> header file. */
@@ -48,7 +48,7 @@
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
 
-/* Define to 1 if all of the C90 standard headers exist (not just the ones
+/* Define to 1 if all of the C89 standard headers exist (not just the ones
    required in a freestanding environment). This macro is provided for
    backward compatibility; new code need not use it. */
 #undef STDC_HEADERS

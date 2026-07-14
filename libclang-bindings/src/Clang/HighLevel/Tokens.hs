@@ -46,7 +46,7 @@ clang_tokenize ::
      -- ^ Range
      --
      -- We use 'Range' 'SingleLoc' here instead of 'CXSourceRange' in order to
-     -- avoid ambiguity; see 'Clang.HighLevel.SourceLoc.Multi' for discussion.
+     -- avoid ambiguity; see 'Clang.HighLevel.SourceLoc.MultiLoc' for discussion.
   -> m [Token TokenSpelling]
 clang_tokenize unit range = liftIO $ do
     range' <- SourceLoc.fromRange unit range

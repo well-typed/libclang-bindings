@@ -46,7 +46,7 @@ import Clang.LowLevel.Core qualified as Core
 
 -- | Typed fold over the AST
 --
--- This is similar to 'CXCursorVisitor', but
+-- This is similar to @CXCursorVisitor@, but
 --
 -- * we allow for (typed) results
 -- * when recursing into the children of a node, we get to specify a /different/
@@ -463,7 +463,7 @@ popUntil runInIO someStack newParent = do
 
 -- | Fold the AST
 --
--- This provides a higher-level API to 'clang_visitChildren', in which
+-- This provides a higher-level API to 'Core.clang_visitChildren', in which
 --
 -- * visitors can return results
 -- * we can specify different visitors at different levels of the AST

@@ -16,8 +16,8 @@ file](./.stylish-haskell.yaml).
 To perform a pre-commit code formatting pass, run one of the following:
 
 ```
-./scripts/ci/format-cabal-fmt.sh
-./scripts/ci/format-stylish-haskell.sh
+./scripts/ci/run-cabal-fmt.sh
+./scripts/ci/run-stylish-haskell.sh
 ```
 
 ## Pull requests
@@ -37,27 +37,4 @@ The following are requirements for merging a PR into `main`:
 
 ## Releases
 
-Releases follow the [Haskell Package Versioning
-Policy](https://pvp.haskell.org/). We use version numbers consisting of 3 parts,
-like `A.B.C`.
-* `A.B` is the *major* version number. A bump indicates a breaking change.
-* `C` is the *minor* version number. A bump indicates a non-breaking change.
-
-To publish a release for a package, follow the steps below:
-
-* Changelog checks (`CHANGELOG.md`):
-  * Check that all user-facing changes have been recorded.
-  * Check that each changelog entry is in the correct category.
-  * Check that each changelog entry links to a PR, if applicable.
-  * Add or update the changelog's section header with the package version that
-    is going to be released, and the date of the release. The version should be
-    picked based on our package versioning policy.
-
-* Cabal file checks (`*.cabal`):
-  * Update the `version` field.
-  * Update the `tag` field of the `source-repository this` stanza.
-
-* Cabal project file checks (`cabal.project*`):
-  * Update the `index-state` in the `cabal.project` file to the current
-    date-time, or the closest valid date-time to the current date-time, so that
-    CI builds and tests the libraries with the newest versions of dependencies.
+To publish a release, follow [the release process](./dev/release-process.md).
