@@ -84,7 +84,7 @@ instance (IsSingleFlag hs, Enum hs, Bounded hs, Show hs)
              showString "simpleEnum "
            . showsPrec appPrec1 hs
 
--- | Internal auxiliary for showing 'SimpleEnum'
+-- | Internal auxiliary for showing 'BitfieldEnum'
 showBitfieldEnum :: forall hs.
      (IsSingleFlag hs, Enum hs, Bounded hs)
   => BitfieldEnum hs -> Either (CUInt, TypeRep) [hs]

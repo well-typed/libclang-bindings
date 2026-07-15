@@ -108,7 +108,7 @@ data CXTranslationUnit_Flags =
   | CXTranslationUnit_CacheCompletionResults
 
     -- | Used to indicate that the translation unit will be serialized with
-    -- 'clang_saveTranslationUnit'.
+    -- @clang_saveTranslationUnit@. (Not currently exposed by this library.)
     --
     -- This option is typically used when parsing a header with the intent of
     -- producing a precompiled header.
@@ -157,10 +157,11 @@ data CXTranslationUnit_Flags =
 
     -- | Used to indicate that non-errors from included files should be ignored.
     --
-    -- If set, 'clang_getDiagnosticSetFromTU' will not report e.g. warnings from
-    -- included files anymore. This speeds up 'clang_getDiagnosticSetFromTU' for
+    -- If set, @clang_getDiagnosticSetFromTU@ will not report e.g. warnings from
+    -- included files anymore. This speeds up @clang_getDiagnosticSetFromTU@ for
     -- the case where these warnings are not of interest, as for an IDE for
     -- example, which typically shows only the diagnostics in the main file.
+    -- (Not currently exposed by this library.)
   | CXTranslationUnit_IgnoreNonErrorsFromIncludedFiles
 
     -- | Tells the preprocessor not to skip excluded conditional blocks.
@@ -300,7 +301,7 @@ data CXChildVisitResult =
 
 -- | List the possible error codes for 'clang_Type_getSizeOf',
 -- 'clang_Type_getAlignOf', 'clang_Type_getOffsetOf' and
--- 'clang_Cursor_getOffsetOf'.
+-- 'clang_Cursor_getOffsetOfField'.
 --
 -- A value of this enumeration type can be returned if the target type is not a
 -- valid argument to @sizeof@, @alignof@ or @offsetof@.
@@ -570,8 +571,9 @@ data CXCursorKind =
     -- functions found via argument-dependent lookup (e.g., the \"swap\"
     -- function at the end of the example).
     --
-    -- The 'functionsclang_getNumOverloadedDecls' and 'clang_getOverloadedDecl'
-    -- can be used to retrieve the definitions referenced by this cursor.
+    -- The functions @clang_getNumOverloadedDecls@ and @clang_getOverloadedDecl@
+    -- can be used to retrieve the definitions referenced by this cursor. (Not
+    -- currently exposed by this library.)
   | CXCursor_OverloadedDeclRef
 
     -- | A reference to a variable that occurs in some non-expression context,

@@ -32,4 +32,4 @@ jobs:
         hackage-index-state: "2026-02-19T00:00:00Z"
 
     - name: 🎗️ Lint with cabal-fmt
-      run: ./scripts/ci/format-cabal-fmt.sh && git diff --exit-code
+      run: ./scripts/ci/run-cabal-fmt.sh && git diff --exit-code

@@ -1,10 +1,20 @@
 # Revision history for libclang-bindings
 
-## ?.?.? -- YYYY-mm-dd
+## ?.?.?.? -- YYYY-mm-dd
 
 ### Breaking changes
 
-* Removed `LLVM_CONFIG` configuration variable.  Configure `PATH` so that the
+### New features
+
+### Minor changes
+
+### Bug fixes
+
+## 0.1.0.0 -- 2026-07-14
+
+### Breaking changes
+
+* Removed `LLVM_CONFIG` configuration variable. Configure `PATH` so that the
   desired `llvm-config` is found instead.
 
 ### New features

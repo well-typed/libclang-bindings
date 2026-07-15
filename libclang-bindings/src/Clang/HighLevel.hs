@@ -1,7 +1,7 @@
 -- | High-level API to @libclang@
 --
 -- The functions in this module (intentionally) clash with the corresponding
--- function in "Clang.LowLevel": the hope is that by keeping the names of
+-- function in "Clang.LowLevel.Core": the hope is that by keeping the names of
 -- corresponding functions the same, the API is easier to use. You may therefore
 -- wish to import this module qualified. Typical usage:
 --

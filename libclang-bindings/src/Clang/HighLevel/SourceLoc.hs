@@ -170,7 +170,7 @@ compareSingleLoc a b = do
 -- | Check if a location falls within the given range
 --
 -- Treats the range as half-open, with an inclusive lower bound and exclusive
--- upper bound (following 'CXSourceRange').
+-- upper bound (following 'Core.CXSourceRange').
 --
 -- Returns 'Nothing' if the three locations are not all in the same file.
 rangeContainsLoc :: Range SingleLoc -> SingleLoc -> Maybe Bool
