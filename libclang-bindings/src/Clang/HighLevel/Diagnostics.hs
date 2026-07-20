@@ -85,7 +85,9 @@ data FixIt = FixIt {
     }
   deriving stock (Show, Eq)
 
--- TODO: Probably separate into Info/Warning/Error (issue #175).
+-- TODO <https://github.com/well-typed/libclang-bindings/issues/73>
+--
+-- Probably separate into Info/Warning/Error (issue #175).
 diagnosticIsError :: Diagnostic -> Bool
 diagnosticIsError diag =
     case fromSimpleEnum (diagnosticSeverity diag) of
