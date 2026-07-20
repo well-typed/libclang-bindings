@@ -98,6 +98,12 @@ library directories. If you have more than one version of LLVM/Clang installed,
 you can configure your `PATH` to ensure that the `llvm-config` for the version
 that you want to use is found.
 
+> [!NOTE]
+> Some platforms provide versioned executables of `llvm-config` (e.g., Fedora
+> with `clangNN-devel` provides `llvm-config-NN`). Ensure an unversioned
+> executable is available (e.g., by installing `clang-devel`, or by linking
+> `llvm-config-NN` to `llvm-config` on Fedora).
+
 ### Using `LLVM_PATH`
 [t:using-llvm-path]: #using-llvm_path
 
