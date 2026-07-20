@@ -185,8 +185,10 @@ instance HasKnownSize tag => Preallocate (OnHaskellHeap tag) where
 
 -- | Preallocate two values
 --
--- TODO: It would be nice to generalize this, but I can't quite figure out how
--- without introducing a ton of machinery.
+-- TODO <https://github.com/well-typed/libclang-bindings/issues/74>
+--
+-- It would be nice to generalize this, but I can't quite figure out how without
+-- introducing a ton of machinery.
 preallocatePair :: forall a b r.
      (Preallocate a, Preallocate b)
   => (Writing a -> Writing b -> IO r)
