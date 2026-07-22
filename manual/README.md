@@ -94,15 +94,17 @@ script, which determines which `libclang` shared library is linked.
 The `llvm-config` program, generally included in LLVM/Clang installations, is
 used to configure software builds to use a specific LLVM/Clang installation.
 The `libclang-bindings` configure script uses it to determine the include and
-library directories. If you have more than one version of LLVM/Clang installed,
-you can configure your `PATH` to ensure that the `llvm-config` for the version
-that you want to use is found.
+library directories. In some cases, you may need to configure your `PATH`
+environment variable to ensure that the `llvm-config` for the version that you
+want to use is found.
 
 > [!NOTE]
-> Some platforms provide versioned executables of `llvm-config` (e.g., Fedora
-> with `clangNN-devel` provides `llvm-config-NN`). Ensure an unversioned
-> executable is available (e.g., by installing `clang-devel`, or by linking
-> `llvm-config-NN` to `llvm-config` on Fedora).
+> Many Linux distributions provide packages for multiple versions of LLVM/Clang.
+> If you install the current version, `llvm-config` should work without any
+> configuration. If you install an older version, you likely need to update your
+> `PATH` to prepend the `bin` directory for that version. Run
+> `llvm-config --version` and `clang --version` to confirm that you have the
+> desired version configured.
 
 ### Using `LLVM_PATH`
 [t:using-llvm-path]: #using-llvm_path
