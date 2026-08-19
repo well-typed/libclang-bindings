@@ -99,6 +99,7 @@ module Clang.LowLevel.Core (
   , CXAvailabilityKind(..)
   , clang_getTranslationUnitCursor
   , clang_equalCursors
+  , clang_hashCursor
   , clang_getCursorSemanticParent
   , clang_getCursorLexicalParent
   , clang_getCursorTLSKind
@@ -696,6 +697,13 @@ clang_equalCursors a b = liftIO $
     onHaskellHeap a $ \a' ->
     onHaskellHeap b $ \b' ->
       cToBool <$> wrap_equalCursors a' b'
+
+-- | Compute a hash value for the given cursor.
+--
+-- <https://clang.llvm.org/doxygen/group__CINDEX__CURSOR__MANIP.html#gabf27e0eaee38ae9e7453f55754d4929b>
+clang_hashCursor :: MonadIO m => CXCursor -> m CUInt
+clang_hashCursor cursor = liftIO $
+    onHaskellHeap cursor wrap_hashCursor
 
 -- | Determine the semantic parent of the given cursor.
 --

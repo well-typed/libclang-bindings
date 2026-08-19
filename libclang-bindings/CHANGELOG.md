@@ -6,6 +6,8 @@
 
 ### New features
 
+* Add a binding for the `clang_hashCursor` function. See [PR #81][pr-81].
+
 ### Minor changes
 
 ### Bug fixes
@@ -49,6 +51,7 @@
 [pr-42]: https://github.com/well-typed/libclang/pull/42
 [pr-47]: https://github.com/well-typed/libclang/pull/47
 [pr-53]: https://github.com/well-typed/libclang/pull/53
+[pr-81]: https://github.com/well-typed/libclang-bindings/pull/81
 [issue-58]: https://github.com/well-typed/libclang/issues/58
 
 ## 0.1.0-alpha -- 2026-02-06
