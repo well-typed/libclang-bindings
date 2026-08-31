@@ -26,6 +26,10 @@ module Clang.HighLevel.SourceLoc (
   , prettyMultiLoc
   , prettyRangeSingleLoc
   , prettyRangeMultiLoc
+    -- * File to RealPath
+  , ClangRealPathException(..)
+  , clang_getRealPath
+  , clang_tryGetRealPath
     -- * Convenience wrappers
     -- * for @CXSourceLocation@
   , clang_getDiagnosticLocation
@@ -40,10 +44,12 @@ module Clang.HighLevel.SourceLoc (
   , clang_getTokenExtent
   ) where
 
+import Control.Exception (Exception, throwIO)
 import Control.Monad
 import Control.Monad.IO.Class
 import Data.List (intercalate)
 import Data.Text (Text)
+import Data.Text qualified as Text
 import Foreign.C
 import GHC.Generics (Generic)
 import GHC.Stack
@@ -59,10 +65,10 @@ import Clang.Paths
 --
 -- See 'MultiLoc' for additional discussion.
 data SingleLoc = SingleLoc {
-      singleLocPath   :: !SourcePath
-    , singleLocLine   :: !Int
-    , singleLocColumn :: !Int
-    , singleLocOffset :: !Int
+      singleLocPath     :: !SourcePath
+    , singleLocLine     :: !Int
+    , singleLocColumn   :: !Int
+    , singleLocOffset   :: !Int
     }
   deriving stock (Eq, Ord, Generic)
 
@@ -228,10 +234,10 @@ prettyMultiLoc showFile multiLoc =
 
     presumed :: PresumedLoc -> [Char]
     presumed loc = single $ SingleLoc{
-          singleLocPath   = presumedLocPath   loc
-        , singleLocLine   = presumedLocLine   loc
-        , singleLocColumn = presumedLocColumn loc
-        , singleLocOffset = 0 -- not used for pretty-printing
+          singleLocPath     = presumedLocPath   loc
+        , singleLocLine     = presumedLocLine   loc
+        , singleLocColumn   = presumedLocColumn loc
+        , singleLocOffset   = 0 -- not used for pretty-printing
         }
 
     single :: SingleLoc -> [Char]
@@ -303,7 +309,7 @@ fromSingle ::
      (MonadIO m, HasCallStack)
   => Core.CXTranslationUnit -> SingleLoc -> m Core.CXSourceLocation
 fromSingle unit SingleLoc{singleLocPath, singleLocLine, singleLocColumn} = do
-     let SourcePath path = singleLocPath
+     let path = getSourcePathText singleLocPath
      file <- Core.clang_getFile unit path
      Core.clang_getLocation
        unit
@@ -416,22 +422,53 @@ clang_getTokenExtent unit token =
     toRange =<< Core.clang_getTokenExtent unit token
 
 {-------------------------------------------------------------------------------
+  Exceptions
+-------------------------------------------------------------------------------}
+
+-- | Thrown by 'clang_getRealPath' when the file has no backing file on disk
+newtype ClangRealPathException = ClangRealPathException CallStack
+  deriving stock (Show)
+  deriving anyclass (Exception)
+
+{-------------------------------------------------------------------------------
   Auxiliary
 -------------------------------------------------------------------------------}
 
+-- | Get the 'RealPath' for a 'Core.CXFile'
+--
+-- Calls @clang_File_tryGetRealPathName@. Throws when the file has no backing
+-- file on disk (precondition: the file must be a real on-disk file).
+clang_getRealPath :: (MonadIO m, HasCallStack) => Core.CXFile -> m RealPath
+clang_getRealPath file = do
+    path <- Core.clang_File_tryGetRealPathName file
+    if Text.null path
+      then liftIO . throwIO $ ClangRealPathException callStack
+      else return (RealPath path)
+
+-- | Try to get the 'RealPath' for a 'Core.CXFile'
+--
+-- Returns 'Nothing' for virtual/in-memory files.
+clang_tryGetRealPath :: MonadIO m => Core.CXFile -> m (Maybe RealPath)
+clang_tryGetRealPath file = do
+    path <- Core.clang_File_tryGetRealPathName file
+    return $ if Text.null path then Nothing else Just (RealPath path)
+
 toSingle :: MonadIO m => (Core.CXFile, CUInt, CUInt, CUInt) -> m SingleLoc
 toSingle (file, line, column, offset) = do
-    path <- Core.clang_getFileName file
+    mRealPath <- clang_tryGetRealPath file
+    pathText  <- case mRealPath of
+      Just (RealPath rp) -> pure rp
+      Nothing            -> Core.clang_getFileName file
     return SingleLoc{
-        singleLocPath   = SourcePath   path
-      , singleLocLine   = fromIntegral line
-      , singleLocColumn = fromIntegral column
-      , singleLocOffset = fromIntegral offset
+        singleLocPath     = SourcePath pathText
+      , singleLocLine     = fromIntegral line
+      , singleLocColumn   = fromIntegral column
+      , singleLocOffset   = fromIntegral offset
       }
 
 toPresumed :: (Text, CUInt, CUInt) -> PresumedLoc
 toPresumed (path, line, column) = PresumedLoc{
-      presumedLocPath   = SourcePath   path
+      presumedLocPath   = SourcePath path
     , presumedLocLine   = fromIntegral line
     , presumedLocColumn = fromIntegral column
     }

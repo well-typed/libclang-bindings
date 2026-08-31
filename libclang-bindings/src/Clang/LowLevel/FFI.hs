@@ -126,7 +126,8 @@ foreign import capi unsafe "clang_wrappers.h"
 
 -- OMITTED: int      clang_File_isEqual (CXFile file1, CXFile file2);
 
--- OMITTED: CXString clang_File_tryGetRealPathName (CXFile file);
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_File_tryGetRealPathName :: CXFile -> W CXString_ -> IO ()
 
 -- *** Physical source locations ***
 
