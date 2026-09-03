@@ -29,6 +29,10 @@ module Clang.HighLevel (
   , clang_getCursorLocation
   , clang_getCursorLocation'
   , clang_getTokenLocation
+    -- *** for @CXFile@
+  , ClangRealPathException(..)
+  , clang_getRealPath
+  , clang_tryGetRealPath
     -- *** for @CXSourceRange@
   , clang_getDiagnosticRange
   , clang_getDiagnosticFixIt

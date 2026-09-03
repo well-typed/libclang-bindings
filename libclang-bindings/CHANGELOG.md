@@ -6,11 +6,31 @@
 
 ### New features
 
+* Add a binding for `clang_File_tryGetRealPathName`, which returns the canonical
+  absolute path of a file. Returns the empty string for virtual/in-memory
+  files.
+* Add `clang_getRealPath` and `clang_tryGetRealPath`, high-level helpers
+  that wrap `clang_File_tryGetRealPathName`. The former throws
+  `ClangRealPathException` for virtual files; the latter returns `Maybe`.
+* Add `RealPath`, a newtype for canonical on-disk paths obtained through
+  `clang_File_tryGetRealPathName`. Two `RealPath` values that refer to
+  the same physical file are guaranteed equal regardless of the
+  `#include` spelling that reached it.
+* Add `getSourcePathText` to extract the underlying `Text` from a
+  `SourcePath`.
+* Add `sourcePathToRealPath` and `realPathToSourcePath` conversion
+  functions between `SourcePath` and `RealPath`.
+* `toSingle` now prefers the canonical path via `clang_tryGetRealPath`,
+  falling back to `clang_getFileName` for virtual files. This fixes
+  identity comparisons when the same header is reached by different
+  `#include` spellings. See [well-typed/hs-bindgen#2236][hs-bindgen-2236].
 * Add a binding for the `clang_hashCursor` function. See [PR #81][pr-81].
 
 ### Minor changes
 
 ### Bug fixes
+
+[pr-81]: https://github.com/well-typed/libclang-bindings/pull/81
 
 ## 0.1.0.0 -- 2026-07-14
 
@@ -51,8 +71,8 @@
 [pr-42]: https://github.com/well-typed/libclang/pull/42
 [pr-47]: https://github.com/well-typed/libclang/pull/47
 [pr-53]: https://github.com/well-typed/libclang/pull/53
-[pr-81]: https://github.com/well-typed/libclang-bindings/pull/81
 [issue-58]: https://github.com/well-typed/libclang/issues/58
+[hs-bindgen-2236]: https://github.com/well-typed/hs-bindgen/issues/2236
 
 ## 0.1.0-alpha -- 2026-02-06
 

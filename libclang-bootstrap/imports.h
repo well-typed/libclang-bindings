@@ -47,7 +47,7 @@ CXString clang_getFileName (CXFile SFile);
 // OMITTED: time_t   clang_getFileTime (CXFile SFile);
 // OMITTED: int      clang_getFileUniqueID (CXFile file, CXFileUniqueID * outID);
 // OMITTED: int      clang_File_isEqual (CXFile file1, CXFile file2);
-// OMITTED: CXString clang_File_tryGetRealPathName (CXFile file);
+CXString clang_File_tryGetRealPathName (CXFile file);
 
 // *** Physical source locations ***
 // <https://clang.llvm.org/doxygen/group__CINDEX__LOCATIONS.html>
