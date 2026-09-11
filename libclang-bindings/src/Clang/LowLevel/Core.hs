@@ -217,6 +217,8 @@ module Clang.LowLevel.Core (
   , clang_Location_isFromMainFile
     -- * File manipulation routines
   , clang_getFileName
+  , clang_File_isEqual
+  , clang_File_tryGetRealPathName
     -- * Debugging
   , clang_breakpoint
     -- * Exceptions
@@ -2008,6 +2010,22 @@ clang_Location_isFromMainFile location = liftIO $
 -- <https://clang.llvm.org/doxygen/group__CINDEX__FILES.html#ga626ff6335ab1e0a2b8c8823301225690>
 clang_getFileName :: MonadIO m => CXFile -> m Text
 clang_getFileName file = liftIO $ preallocate_$ wrap_getFileName file
+
+-- | Check whether two files refer to the same underlying file.
+--
+-- <https://clang.llvm.org/doxygen/group__CINDEX__FILES.html#ga2efb64a9f8b36bdca41e24ced5fc6a69>
+clang_File_isEqual :: CXFile -> CXFile -> Bool
+clang_File_isEqual f1 f2 = nowrapper_File_isEqual f1 f2 /= 0
+
+-- | Get the real, canonical path name of the given file.
+--
+-- Returns the empty string for virtual files (files that are not saved to
+-- disk, such as unsaved files passed to @clang_parseTranslationUnit@).
+--
+-- <https://clang.llvm.org/doxygen/group__CINDEX__FILES.html#ga2becf44b7e67e25038e6e4fdb3e22a96>
+clang_File_tryGetRealPathName :: MonadIO m => CXFile -> m Text
+clang_File_tryGetRealPathName file =
+    liftIO $ preallocate_$ wrap_File_tryGetRealPathName file
 
 -- | Retrieve the contents of the given file that is loaded in the given
 -- translation unit.
