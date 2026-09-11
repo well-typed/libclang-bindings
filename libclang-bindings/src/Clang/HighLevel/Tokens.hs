@@ -16,18 +16,21 @@ import Clang.HighLevel.SourceLoc (MultiLoc, Range, SingleLoc)
 import Clang.HighLevel.SourceLoc qualified as SourceLoc
 import Clang.LowLevel.Core hiding (clang_tokenize)
 import Clang.LowLevel.Core qualified as Core
+import Clang.Paths (SourcePath)
 
 {-------------------------------------------------------------------------------
   Definition
 -------------------------------------------------------------------------------}
 
-data Token a = Token {
+data Token path a = Token {
       tokenKind       :: !(SimpleEnum CXTokenKind)
     , tokenSpelling   :: !a
-    , tokenExtent     :: !(Range MultiLoc)
+    , tokenExtent     :: !(Range (MultiLoc path))
     , tokenCursorKind :: !(SimpleEnum CXCursorKind)
     }
-  deriving stock (Show, Eq, Ord, Functor, Foldable, Traversable, Generic)
+  deriving stock (Eq, Ord, Functor, Foldable, Traversable, Generic)
+
+deriving stock instance (Show a, Show (Range (MultiLoc path))) => Show (Token path a)
 
 newtype TokenSpelling = TokenSpelling {
       getTokenSpelling :: Text
@@ -42,29 +45,30 @@ newtype TokenSpelling = TokenSpelling {
 clang_tokenize ::
      (MonadIO m, HasCallStack)
   => CXTranslationUnit
-  -> Range SingleLoc
-     -- ^ Range
-     --
-     -- We use 'Range' 'SingleLoc' here instead of 'CXSourceRange' in order to
-     -- avoid ambiguity; see 'Clang.HighLevel.SourceLoc.MultiLoc' for discussion.
-  -> m [Token TokenSpelling]
-clang_tokenize unit range = liftIO $ do
-    range' <- SourceLoc.fromRange unit range
-    bracket
-        (Core.clang_tokenize unit range')
-        (uncurry $ Core.clang_disposeTokens unit) $ \(tokens, numTokens) -> do
-      cursors <- clang_annotateTokens unit tokens numTokens
-      forM [0 .. pred numTokens] $ \i -> do
-        cursor <- index_CXCursorArray cursors i
-        toToken unit (index_CXTokenArray tokens i) cursor
+  -> (path -> Text)
+  -> Range (SingleLoc path)
+  -> m [Token SourcePath TokenSpelling]
+clang_tokenize unit getPath range = do
+    cxRange <- SourceLoc.fromRange unit getPath range
+    liftIO $
+      bracket
+          (Core.clang_tokenize unit cxRange)
+          (uncurry $ Core.clang_disposeTokens unit) $ \(tokens, numTokens) -> do
+        if numTokens == 0
+          then return []
+          else do
+            cursors <- clang_annotateTokens unit tokens numTokens
+            forM [0 .. pred numTokens] $ \i -> do
+              cursor <- index_CXCursorArray cursors i
+              toToken unit (index_CXTokenArray tokens i) cursor
 
 toToken ::
      MonadIO m
-  => CXTranslationUnit -> CXToken -> CXCursor -> m (Token TokenSpelling)
+  => CXTranslationUnit -> CXToken -> CXCursor -> m (Token SourcePath TokenSpelling)
 toToken unit token cursor = do
     tokenKind       <- clang_getTokenKind token
     tokenSpelling   <- TokenSpelling <$> clang_getTokenSpelling unit token
-    tokenExtent     <- SourceLoc.clang_getTokenExtent unit token
+    tokenExtent     <- SourceLoc.toRangeSourcePath =<< Core.clang_getTokenExtent unit token
     tokenCursorKind <- clang_getCursorKind cursor
     return Token{
         tokenKind

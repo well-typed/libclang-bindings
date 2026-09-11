@@ -16,6 +16,7 @@ import Clang.Enum.Simple
 import Clang.HighLevel.SourceLoc (MultiLoc, Range)
 import Clang.HighLevel.SourceLoc qualified as SourceLoc
 import Clang.LowLevel.Core
+import Clang.Paths (SourcePath)
 
 {-------------------------------------------------------------------------------
   Definition
@@ -29,7 +30,10 @@ data Diagnostic = Diagnostic {
     , diagnosticSeverity :: SimpleEnum CXDiagnosticSeverity
 
       -- | Source location (where Clang would print the caret @^@)
-    , diagnosticLocation  :: MultiLoc
+      --
+      -- Uses 'SourcePath' rather than 'RealPath' because diagnostics may
+      -- refer to root headers whose real path is not available.
+    , diagnosticLocation  :: MultiLoc SourcePath
 
       -- | Text of the diagnostic
     , diagnosticSpelling  :: Text
@@ -51,7 +55,7 @@ data Diagnostic = Diagnostic {
       -- A diagnostic's source ranges highlight important elements in the source
       -- code. On the command line, Clang displays source ranges by underlining
       -- them with @~@ characters.
-    , diagnosticRanges :: [Range MultiLoc]
+    , diagnosticRanges :: [Range (MultiLoc SourcePath)]
 
       -- | Fix-it hints
     , diagnosticFixIts :: [FixIt]
@@ -78,7 +82,7 @@ data FixIt = FixIt {
       -- replaced with the returned replacement string. Note that source ranges
       -- are half-open ranges [a, b), so the source code should be replaced from
       -- a and up to (but not including) b.
-      fixItRange :: Range MultiLoc
+      fixItRange :: Range (MultiLoc SourcePath)
 
       -- | Text that should replace the source code
     , fixItReplacement :: Text
