@@ -330,10 +330,31 @@ toMultiCXFile location = do
       , singleLocOffset = fromIntegral offset
       }
 
--- | Throws 'ClangRealPathException' for virtual files.
+-- | Convert to 'MultiLoc RealPath'
+--
+-- The expansion location must be in a real on-disk file; throws
+-- 'ClangRealPathException' if it is not. The optional spelling and file
+-- sub-locations, however, can legitimately reference virtual files (e.g. a
+-- built-in definition): when their real path cannot be resolved, they are
+-- dropped to 'Nothing'.
 toMultiRealPath :: (MonadIO m, HasCallStack) => Core.CXSourceLocation -> m (MultiLoc RealPath)
-toMultiRealPath location =
-    traverse clang_getRealPath =<< toMultiCXFile location
+toMultiRealPath location = do
+    multi     <- toMultiCXFile location
+    expansion <- traverse clang_getRealPath (multiLocExpansion multi)
+    spelling  <- trySingleRealPath (multiLocSpelling multi)
+    file      <- trySingleRealPath (multiLocFile multi)
+    return MultiLoc{
+        multiLocExpansion = expansion
+      , multiLocPresumed  = multiLocPresumed multi
+      , multiLocSpelling  = spelling
+      , multiLocFile      = file
+      }
+  where
+    trySingleRealPath :: MonadIO m => Maybe (SingleLoc CXFile) -> m (Maybe (SingleLoc RealPath))
+    trySingleRealPath = \case
+      Nothing  -> return Nothing
+      Just loc -> fmap (\rp -> loc{ singleLocPath = rp }) <$>
+                    clang_tryGetRealPath (singleLocPath loc)
 
 toMultiSourcePath :: MonadIO m => Core.CXSourceLocation -> m (MultiLoc SourcePath)
 toMultiSourcePath location =
