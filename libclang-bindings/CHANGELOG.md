@@ -4,13 +4,30 @@
 
 ### Breaking changes
 
+* `SingleLoc`, `MultiLoc`, and `Token` are parameterized by path type
+  (`SingleLoc path`, `MultiLoc path`, `Token path a`).
+* `toMulti`/`toRange` renamed to `toMultiRealPath`/`toRangeRealPath`;
+  new `toMultiSourcePath`/`toRangeSourcePath` for virtual files.
+* Pretty-printing functions take `(path -> String)`.
+* `clang_tokenize` takes `(path -> Text) -> Range (SingleLoc path)`.
+* `fromSingle`/`fromRange` take `(path -> Text)`.
+* `RealPath`-producing functions carry `HasCallStack`.
+* `Clang.HighLevel.Types` re-exports `RealPath` and `SourcePath`.
+
 ### New features
 
-* Add a binding for the `clang_hashCursor` function. See [PR #81][pr-81].
+* Bind `clang_File_tryGetRealPathName` and `clang_File_isEqual`.
+* Add `RealPath` newtype, `clang_getRealPath`/`clang_tryGetRealPath`,
+  `getSourcePathText`, and `realPathToSourcePath`.
+* Add `toMultiCXFile`: builds `MultiLoc CXFile`.
+* `SingleLoc` and `MultiLoc` derive `Foldable` and `Traversable`.
+* Bind `clang_hashCursor`. See [PR #81][pr-81].
 
 ### Minor changes
 
 ### Bug fixes
+
+[pr-81]: https://github.com/well-typed/libclang-bindings/pull/81
 
 ## 0.1.0.0 -- 2026-07-14
 
@@ -51,8 +68,8 @@
 [pr-42]: https://github.com/well-typed/libclang/pull/42
 [pr-47]: https://github.com/well-typed/libclang/pull/47
 [pr-53]: https://github.com/well-typed/libclang/pull/53
-[pr-81]: https://github.com/well-typed/libclang-bindings/pull/81
 [issue-58]: https://github.com/well-typed/libclang/issues/58
+[hs-bindgen-2236]: https://github.com/well-typed/hs-bindgen/issues/2236
 
 ## 0.1.0-alpha -- 2026-02-06
 

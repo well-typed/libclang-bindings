@@ -4,14 +4,15 @@ module Clang.LowLevel.FFI (module Clang.LowLevel.FFI) where
 
 #include "clang_config.h"
 
+import Foreign.C.Types
+import Foreign.Ptr
+
 import Clang.Enum.Simple
 import Clang.Internal.ByValue
 import Clang.Internal.ConstPtr
 import Clang.LowLevel.Core.Enums
 import Clang.LowLevel.Core.Pointers
 import Clang.LowLevel.Core.Structs
-import Foreign.C.Types
-import Foreign.Ptr
 
 -- *** Top-level ***
 
@@ -124,9 +125,11 @@ foreign import capi unsafe "clang_wrappers.h"
 
 -- OMITTED: int      clang_getFileUniqueID (CXFile file, CXFileUniqueID * outID);
 
--- OMITTED: int      clang_File_isEqual (CXFile file1, CXFile file2);
+foreign import capi unsafe "clang_wrappers.h clang_File_isEqual"
+  nowrapper_File_isEqual :: CXFile -> CXFile -> CInt
 
--- OMITTED: CXString clang_File_tryGetRealPathName (CXFile file);
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_File_tryGetRealPathName :: CXFile -> W CXString_ -> IO ()
 
 -- *** Physical source locations ***
 
