@@ -4,6 +4,10 @@
 
 ### Breaking changes
 
+* Add `CXType_PredefinedSugar` to `CXTypeKind`. LLVM/Clang 23 reports this kind
+  for the predefined types `__size_t`, `__signed_size_t` and `__ptrdiff_t`;
+  see [llvm/llvm-project#202209][llvm-202209].
+
 ### New features
 
 * Add a binding for the `clang_hashCursor` function. See [PR #81][pr-81].
@@ -52,6 +56,7 @@
 [pr-47]: https://github.com/well-typed/libclang/pull/47
 [pr-53]: https://github.com/well-typed/libclang/pull/53
 [pr-81]: https://github.com/well-typed/libclang-bindings/pull/81
+[llvm-202209]: https://github.com/llvm/llvm-project/pull/202209
 [issue-58]: https://github.com/well-typed/libclang/issues/58
 
 ## 0.1.0-alpha -- 2026-02-06
