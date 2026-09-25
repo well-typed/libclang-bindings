@@ -149,6 +149,10 @@ instance IsSimpleEnum CXTypeKind where
   simpleToC CXType_Attributed          = #const CXType_Attributed
   simpleToC CXType_ExtVector           = #const CXType_ExtVector
   simpleToC CXType_Atomic              = #const CXType_Atomic
+  -- Headers before LLVM/Clang 23 do not declare CXType_PredefinedSugar, so we
+  -- cannot take its value from the header. The value is fixed by the
+  -- libclang ABI, and older versions never report it.
+  simpleToC CXType_PredefinedSugar     = 182
 
   simpleFromC (#const CXType_Invalid)             = Just CXType_Invalid
   simpleFromC (#const CXType_Unexposed)           = Just CXType_Unexposed
@@ -216,6 +220,7 @@ instance IsSimpleEnum CXTypeKind where
   simpleFromC (#const CXType_Attributed)          = Just CXType_Attributed
   simpleFromC (#const CXType_ExtVector)           = Just CXType_ExtVector
   simpleFromC (#const CXType_Atomic)              = Just CXType_Atomic
+  simpleFromC 182                                 = Just CXType_PredefinedSugar
 
   simpleFromC _otherwise = Nothing
 
