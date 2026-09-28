@@ -3,18 +3,28 @@
 -- Intended for unqualified import; see "Clang.HighLevel" for more detailed
 -- discussion.
 module Clang.HighLevel.Types (
+    -- * Paths
+    RealPath(..)
+  , SourcePath(..)
     -- * Source locations
-    SingleLoc(..)
+  , SingleLoc(..)
   , MultiLoc(..)
   , Range(..)
     -- ** Comparisons
   , compareSingleLoc
   , rangeContainsLoc
-    -- ** Conversion
-  , toMulti
-  , toRange
+    -- ** Conversion (CXFile)
+  , toMultiCXFile
+    -- ** Conversion (RealPath)
+  , toSingleRealPath
+  , toMultiRealPath
+  , toRangeRealPath
   , fromSingle
   , fromRange
+    -- ** Conversion (SourcePath)
+  , toSingleSourcePath
+  , toMultiSourcePath
+  , toRangeSourcePath
     -- * Tokens
   , Token(..)
   , TokenSpelling(..)
@@ -55,3 +65,4 @@ import Clang.HighLevel.Evaluate
 import Clang.HighLevel.Fold
 import Clang.HighLevel.SourceLoc
 import Clang.HighLevel.Tokens
+import Clang.Paths
