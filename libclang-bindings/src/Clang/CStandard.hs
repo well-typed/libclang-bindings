@@ -20,7 +20,6 @@ import Clang.HighLevel qualified as HighLevel
 import Clang.HighLevel.Types
 import Clang.Internal.Results
 import Clang.LowLevel.Core
-import Clang.Paths
 
 {-------------------------------------------------------------------------------
   C standard
