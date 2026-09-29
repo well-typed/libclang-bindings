@@ -183,6 +183,12 @@ data CXTranslationUnit_Flags =
 -- We don't need them, and by omitting them we are compatible with a larger
 -- range of @libclang@ versions.
 --
+-- NOTE: 'CXType_PredefinedSugar' only exists in @libclang@ 23 and later. We
+-- include it anyway, because @libclang@ 23 reports it for types as common as
+-- the argument of @malloc@. Older versions never report it, and the
+-- 'Clang.Enum.Simple.IsSimpleEnum' instance does not rely on the header
+-- declaring it.
+--
 -- NOTE: We omit @CXType_FirstBuiltin@ and @CXType_LastBuiltin@, which are
 -- aliases for the first and last builtin type in the list, respectively. If
 -- we need them, we should define them as separate constants.
@@ -269,6 +275,18 @@ data CXTypeKind =
 
   | CXType_ExtVector
   | CXType_Atomic
+
+    -- | Sugar for the predefined types @__size_t@, @__signed_size_t@ and
+    -- @__ptrdiff_t@ (LLVM/Clang 23 and later).
+    --
+    -- Clang uses these for the type of @sizeof@ and of pointer subtraction,
+    -- and in the signatures of library builtins such as @malloc@ and
+    -- @strlen@. LLVM/Clang 22 reports the same types as 'CXType_Unexposed';
+    -- earlier versions report the underlying integer type directly. That
+    -- integer type is the canonical type.
+    --
+    -- See <https://github.com/llvm/llvm-project/pull/202209>.
+  | CXType_PredefinedSugar
   deriving stock (Show, Eq, Ord, Enum, Bounded, Generic)
 
 {-------------------------------------------------------------------------------

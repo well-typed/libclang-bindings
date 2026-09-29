@@ -78,7 +78,7 @@ plausible version@(major, _minor, _patch) = or [
       version `elem` historicReleases
 
       -- For the current versions we don't know which minor/patch to expect
-    , major `elem` [21, 22]
+    , major `elem` [21, 22, 23]
     ]
 
 -- | Historic @llvm@ releases

@@ -4,6 +4,9 @@
 
 ### Breaking changes
 
+* Add `CXType_PredefinedSugar` to `CXTypeKind`. LLVM/Clang 23 reports this kind
+  for the predefined types `__size_t`, `__signed_size_t` and `__ptrdiff_t`;
+  see [llvm/llvm-project#202209][llvm-202209].
 * `SingleLoc`, `MultiLoc`, and `Token` are parameterized by path type
   (`SingleLoc path`, `MultiLoc path`, `Token path a`).
 * `toMulti`/`toRange` renamed to `toMultiRealPath`/`toRangeRealPath`;
@@ -68,6 +71,8 @@
 [pr-42]: https://github.com/well-typed/libclang/pull/42
 [pr-47]: https://github.com/well-typed/libclang/pull/47
 [pr-53]: https://github.com/well-typed/libclang/pull/53
+[pr-81]: https://github.com/well-typed/libclang-bindings/pull/81
+[llvm-202209]: https://github.com/llvm/llvm-project/pull/202209
 [issue-58]: https://github.com/well-typed/libclang/issues/58
 [hs-bindgen-2236]: https://github.com/well-typed/hs-bindgen/issues/2236
 
