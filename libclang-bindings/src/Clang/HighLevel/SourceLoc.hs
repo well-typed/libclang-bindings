@@ -304,11 +304,14 @@ toMultiCXFile location = do
     expansionName <- Core.clang_getFileName (singleLocPath expansion)
 
     let differentSingle loc = do
-            guard . not $
+            sameFile <-
               Core.clang_File_isEqual (singleLocPath loc) (singleLocPath expansion)
-            guard $ singleLocLine   loc /= singleLocLine   expansion
-            guard $ singleLocColumn loc /= singleLocColumn expansion
-            return loc
+
+            return $ do
+              guard $ not sameFile
+              guard $ singleLocLine   loc /= singleLocLine   expansion
+              guard $ singleLocColumn loc /= singleLocColumn expansion
+              pure loc
 
         differentPresumed loc = do
             guard $ getSourcePathText (presumedLocPath loc) /= expansionName
@@ -316,11 +319,14 @@ toMultiCXFile location = do
             guard $ presumedLocColumn loc /= singleLocColumn expansion
             return loc
 
+    spelling' <- differentSingle spelling
+    file'     <- differentSingle file
+
     return MultiLoc{
         multiLocExpansion = expansion
       , multiLocPresumed  = differentPresumed presumed
-      , multiLocSpelling  = differentSingle spelling
-      , multiLocFile      = differentSingle file
+      , multiLocSpelling  = spelling'
+      , multiLocFile      = file'
       }
   where
     toSingleCXFile (f, line, column, offset) = return SingleLoc{

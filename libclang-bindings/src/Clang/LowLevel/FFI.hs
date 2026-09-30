@@ -126,7 +126,7 @@ foreign import capi unsafe "clang_wrappers.h"
 -- OMITTED: int      clang_getFileUniqueID (CXFile file, CXFileUniqueID * outID);
 
 foreign import capi unsafe "clang_wrappers.h clang_File_isEqual"
-  nowrapper_File_isEqual :: CXFile -> CXFile -> CInt
+  nowrapper_File_isEqual :: CXFile -> CXFile -> IO CInt
 
 foreign import capi unsafe "clang_wrappers.h"
   wrap_File_tryGetRealPathName :: CXFile -> W CXString_ -> IO ()
