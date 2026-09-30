@@ -15,6 +15,10 @@
 * `clang_tokenize` takes `(path -> Text) -> Range (SingleLoc path)`.
 * `fromSingle`/`fromRange` take `(path -> Text)`.
 * `RealPath`-producing functions carry `HasCallStack`.
+* High-level location functions such as `clang_getCursorLocation` now throw
+  `ClangRealPathException` for locations in virtual files, where 0.1.0.0
+  returned a location. Use `toMultiSourcePath`/`toRangeSourcePath` for those.
+  See [issue #84][issue-84].
 * `Clang.HighLevel.Types` re-exports `RealPath` and `SourcePath`.
 
 ### New features
@@ -31,6 +35,7 @@
 ### Bug fixes
 
 [pr-81]: https://github.com/well-typed/libclang-bindings/pull/81
+[issue-84]: https://github.com/well-typed/libclang-bindings/issues/84
 
 ## 0.1.0.0 -- 2026-07-14
 

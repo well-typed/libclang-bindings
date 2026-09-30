@@ -47,6 +47,13 @@ getSourcePathText (SourcePath path) = path
 -- Obtained via @clang_File_tryGetRealPathName@. Two 'RealPath' values
 -- for the same physical file compare equal regardless of include spelling.
 -- Platform-dependent format.
+--
+-- Virtual files (unsaved buffers, the @\<built-in\>@ buffer) have no real path,
+-- so functions that must return a 'RealPath' for one throw
+-- 'Clang.HighLevel.ClangRealPathException'. That includes the location
+-- functions in "Clang.HighLevel". For virtual files, use
+-- 'Clang.HighLevel.clang_tryGetRealPath' or a 'SourcePath' conversion such as
+-- 'Clang.HighLevel.Types.toMultiSourcePath'.
 newtype RealPath = RealPath Text
   deriving stock (Eq, Ord, Show)
 
