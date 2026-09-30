@@ -108,6 +108,10 @@ data PresumedLoc = PresumedLoc {
 -- which is the position at the caret, and a \"spelling location\", which
 -- corresponds to the location of the @int@ token in the macro definition.
 --
+-- The presumed, spelling and file locations are 'Nothing' when they coincide
+-- with the expansion location, that is, when they agree with it on file, line
+-- and column.
+--
 -- References:
 --
 -- * <https://clang.llvm.org/doxygen/classclang_1_1SourceLocation.html>
@@ -308,15 +312,17 @@ toMultiCXFile location = do
               Core.clang_File_isEqual (singleLocPath loc) (singleLocPath expansion)
 
             return $ do
-              guard $ not sameFile
-              guard $ singleLocLine   loc /= singleLocLine   expansion
-              guard $ singleLocColumn loc /= singleLocColumn expansion
+              guard $
+                   not sameFile
+                || singleLocLine   loc /= singleLocLine   expansion
+                || singleLocColumn loc /= singleLocColumn expansion
               pure loc
 
         differentPresumed loc = do
-            guard $ getSourcePathText (presumedLocPath loc) /= expansionName
-            guard $ presumedLocLine   loc /= singleLocLine   expansion
-            guard $ presumedLocColumn loc /= singleLocColumn expansion
+            guard $
+                 getSourcePathText (presumedLocPath loc) /= expansionName
+              || presumedLocLine   loc /= singleLocLine   expansion
+              || presumedLocColumn loc /= singleLocColumn expansion
             return loc
 
     spelling' <- differentSingle spelling
