@@ -10,13 +10,11 @@ module Clang.HighLevel.SourceLoc (
     -- * Conversion (CXFile)
   , toMultiCXFile
     -- * Conversion (RealPath)
-  , toSingleRealPath
   , toMultiRealPath
   , toRangeRealPath
   , fromSingle
   , fromRange
     -- * Conversion (SourcePath)
-  , toSingleSourcePath
   , toMultiSourcePath
   , toRangeSourcePath
     -- * Get single location
@@ -551,20 +549,6 @@ toSingleRealPath (file, line, column, offset) = do
     realPath <- clang_getRealPath file
     return SingleLoc{
         singleLocPath   = realPath
-      , singleLocLine   = fromIntegral line
-      , singleLocColumn = fromIntegral column
-      , singleLocOffset = fromIntegral offset
-      }
-
--- | Build a @SingleLoc SourcePath@ via @clang_getFileName@.
--- Caller must ensure the 'Core.CXFile' is non-null.
-toSingleSourcePath ::
-     MonadIO m
-  => (Core.CXFile, CUInt, CUInt, CUInt) -> m (SingleLoc SourcePath)
-toSingleSourcePath (file, line, column, offset) = do
-    path <- SourcePath <$> Core.clang_getFileName file
-    return SingleLoc{
-        singleLocPath   = path
       , singleLocLine   = fromIntegral line
       , singleLocColumn = fromIntegral column
       , singleLocOffset = fromIntegral offset
