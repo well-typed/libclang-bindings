@@ -2014,8 +2014,9 @@ clang_getFileName file = liftIO $ preallocate_$ wrap_getFileName file
 -- | Check whether two files refer to the same underlying file.
 --
 -- <https://clang.llvm.org/doxygen/group__CINDEX__FILES.html#ga2efb64a9f8b36bdca41e24ced5fc6a69>
-clang_File_isEqual :: CXFile -> CXFile -> Bool
-clang_File_isEqual f1 f2 = nowrapper_File_isEqual f1 f2 /= 0
+clang_File_isEqual :: MonadIO m => CXFile -> CXFile -> m Bool
+clang_File_isEqual f1 f2 = liftIO $
+    cToBool <$> nowrapper_File_isEqual f1 f2
 
 -- | Get the real, canonical path name of the given file.
 --

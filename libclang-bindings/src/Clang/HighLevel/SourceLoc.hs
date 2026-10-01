@@ -10,13 +10,11 @@ module Clang.HighLevel.SourceLoc (
     -- * Conversion (CXFile)
   , toMultiCXFile
     -- * Conversion (RealPath)
-  , toSingleRealPath
   , toMultiRealPath
   , toRangeRealPath
   , fromSingle
   , fromRange
     -- * Conversion (SourcePath)
-  , toSingleSourcePath
   , toMultiSourcePath
   , toRangeSourcePath
     -- * Get single location
@@ -107,6 +105,10 @@ data PresumedLoc = PresumedLoc {
 -- then the source location at the caret (@^@) has an \"expansion location\",
 -- which is the position at the caret, and a \"spelling location\", which
 -- corresponds to the location of the @int@ token in the macro definition.
+--
+-- The presumed, spelling and file locations are 'Nothing' when they coincide
+-- with the expansion location, that is, when they agree with it on file, line
+-- and column.
 --
 -- References:
 --
@@ -304,23 +306,31 @@ toMultiCXFile location = do
     expansionName <- Core.clang_getFileName (singleLocPath expansion)
 
     let differentSingle loc = do
-            guard . not $
+            sameFile <-
               Core.clang_File_isEqual (singleLocPath loc) (singleLocPath expansion)
-            guard $ singleLocLine   loc /= singleLocLine   expansion
-            guard $ singleLocColumn loc /= singleLocColumn expansion
-            return loc
+
+            return $ do
+              guard $
+                   not sameFile
+                || singleLocLine   loc /= singleLocLine   expansion
+                || singleLocColumn loc /= singleLocColumn expansion
+              pure loc
 
         differentPresumed loc = do
-            guard $ getSourcePathText (presumedLocPath loc) /= expansionName
-            guard $ presumedLocLine   loc /= singleLocLine   expansion
-            guard $ presumedLocColumn loc /= singleLocColumn expansion
+            guard $
+                 getSourcePathText (presumedLocPath loc) /= expansionName
+              || presumedLocLine   loc /= singleLocLine   expansion
+              || presumedLocColumn loc /= singleLocColumn expansion
             return loc
+
+    spelling' <- differentSingle spelling
+    file'     <- differentSingle file
 
     return MultiLoc{
         multiLocExpansion = expansion
       , multiLocPresumed  = differentPresumed presumed
-      , multiLocSpelling  = differentSingle spelling
-      , multiLocFile      = differentSingle file
+      , multiLocSpelling  = spelling'
+      , multiLocFile      = file'
       }
   where
     toSingleCXFile (f, line, column, offset) = return SingleLoc{
@@ -539,20 +549,6 @@ toSingleRealPath (file, line, column, offset) = do
     realPath <- clang_getRealPath file
     return SingleLoc{
         singleLocPath   = realPath
-      , singleLocLine   = fromIntegral line
-      , singleLocColumn = fromIntegral column
-      , singleLocOffset = fromIntegral offset
-      }
-
--- | Build a @SingleLoc SourcePath@ via @clang_getFileName@.
--- Caller must ensure the 'Core.CXFile' is non-null.
-toSingleSourcePath ::
-     MonadIO m
-  => (Core.CXFile, CUInt, CUInt, CUInt) -> m (SingleLoc SourcePath)
-toSingleSourcePath (file, line, column, offset) = do
-    path <- SourcePath <$> Core.clang_getFileName file
-    return SingleLoc{
-        singleLocPath   = path
       , singleLocLine   = fromIntegral line
       , singleLocColumn = fromIntegral column
       , singleLocOffset = fromIntegral offset

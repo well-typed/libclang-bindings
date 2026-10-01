@@ -74,8 +74,6 @@ static inline void wrap_getFileName(CXFile SFile, CXString * result) {
 
 /* OMITTED: int      clang_getFileUniqueID (CXFile file, CXFileUniqueID * outID); */
 
-/* OMITTED: int      clang_File_isEqual (CXFile file1, CXFile file2); */
-
 static inline void wrap_File_tryGetRealPathName(CXFile file, CXString * result) {
   *result = clang_File_tryGetRealPathName(file);
 }

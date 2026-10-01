@@ -16,13 +16,11 @@ module Clang.HighLevel.Types (
     -- ** Conversion (CXFile)
   , toMultiCXFile
     -- ** Conversion (RealPath)
-  , toSingleRealPath
   , toMultiRealPath
   , toRangeRealPath
   , fromSingle
   , fromRange
     -- ** Conversion (SourcePath)
-  , toSingleSourcePath
   , toMultiSourcePath
   , toRangeSourcePath
     -- * Tokens
