@@ -12,8 +12,6 @@ module Clang.HighLevel.SourceLoc (
     -- * Conversion (RealPath)
   , toMultiRealPath
   , toRangeRealPath
-  , fromSingle
-  , fromRange
     -- * Conversion (SourcePath)
   , toMultiSourcePath
   , toRangeSourcePath
@@ -388,26 +386,6 @@ toRangeRealPath = toRangeWith toMultiRealPath
 
 toRangeSourcePath :: MonadIO m => Core.CXSourceRange -> m (Range (MultiLoc SourcePath))
 toRangeSourcePath = toRangeWith toMultiSourcePath
-
-fromSingle ::
-     (MonadIO m, HasCallStack)
-  => Core.CXTranslationUnit -> (path -> Text) -> SingleLoc path -> m Core.CXSourceLocation
-fromSingle unit get SingleLoc{singleLocPath, singleLocLine, singleLocColumn} = do
-     let path = get singleLocPath
-     file <- Core.clang_getFile unit path
-     Core.clang_getLocation
-       unit
-       file
-       (fromIntegral singleLocLine)
-       (fromIntegral singleLocColumn)
-
-fromRange ::
-     (MonadIO m, HasCallStack)
-  => Core.CXTranslationUnit -> (path -> Text) -> Range (SingleLoc path) -> m Core.CXSourceRange
-fromRange unit get Range{rangeStart, rangeEnd} = do
-    rangeStart' <- fromSingle unit get rangeStart
-    rangeEnd'   <- fromSingle unit get rangeEnd
-    Core.clang_getRange rangeStart' rangeEnd'
 
 {-------------------------------------------------------------------------------
   Get single location

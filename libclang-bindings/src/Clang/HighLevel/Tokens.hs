@@ -9,10 +9,9 @@ import Control.Monad
 import Control.Monad.IO.Class
 import Data.Text (Text)
 import GHC.Generics (Generic)
-import GHC.Stack
 
 import Clang.Enum.Simple
-import Clang.HighLevel.SourceLoc (MultiLoc, Range, SingleLoc)
+import Clang.HighLevel.SourceLoc (MultiLoc, Range)
 import Clang.HighLevel.SourceLoc qualified as SourceLoc
 import Clang.LowLevel.Core hiding (clang_tokenize)
 import Clang.LowLevel.Core qualified as Core
@@ -42,17 +41,27 @@ newtype TokenSpelling = TokenSpelling {
 -------------------------------------------------------------------------------}
 
 -- | Get all tokens in the specified range
+--
+-- @libclang@ lexes the source text between the spelling locations of the start
+-- and end of the range.
+--
+-- Consequently, a range that starts inside a macro expansion starts in the
+-- macro definition. For example, given
+--
+-- > #define T int
+-- > T x;
+--
+-- the extent of @x@ starts at the @int@ produced by expanding @T@, and yields
+-- the tokens @int T x@: the text from the @int@ in the definition to @x@.
 clang_tokenize ::
-     (MonadIO m, HasCallStack)
+     MonadIO m
   => CXTranslationUnit
-  -> (path -> Text)
-  -> Range (SingleLoc path)
+  -> CXSourceRange
   -> m [Token SourcePath TokenSpelling]
-clang_tokenize unit getPath range = do
-    cxRange <- SourceLoc.fromRange unit getPath range
+clang_tokenize unit range =
     liftIO $
       bracket
-          (Core.clang_tokenize unit cxRange)
+          (Core.clang_tokenize unit range)
           (uncurry $ Core.clang_disposeTokens unit) $ \(tokens, numTokens) -> do
         if numTokens == 0
           then return []

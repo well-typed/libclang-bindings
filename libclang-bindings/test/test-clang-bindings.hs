@@ -4,6 +4,7 @@ import Test.Discover qualified as Discover
 import Test.Meta.IsConcrete qualified as IsConcrete
 import Test.Tasty
 import Test.Test.Exceptions qualified as Exceptions
+import Test.Test.Tokens qualified as Tokens
 import Test.Version qualified as Version
 
 {-------------------------------------------------------------------------------
@@ -19,5 +20,6 @@ main = defaultMain $ testGroup "test-clang-bindings" [
         ]
     , testGroup "Tests" [
           Exceptions.tests
+        , Tokens.tests
         ]
     ]

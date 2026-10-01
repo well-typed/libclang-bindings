@@ -18,8 +18,6 @@ module Clang.HighLevel.Types (
     -- ** Conversion (RealPath)
   , toMultiRealPath
   , toRangeRealPath
-  , fromSingle
-  , fromRange
     -- ** Conversion (SourcePath)
   , toMultiSourcePath
   , toRangeSourcePath
