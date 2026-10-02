@@ -6,6 +6,7 @@
 module Test.Util.Clang (
     -- * Top-level call into clang
     withInput
+  , withInputUsing
   , parseUsing
   ) where
 
@@ -13,6 +14,8 @@ import Control.Exception
 import Data.Default
 import Test.Util.Input (TestInput (..))
 
+import Clang.Args
+import Clang.Enum.Bitfield
 import Clang.Enum.Simple
 import Clang.HighLevel qualified as HighLevel
 import Clang.HighLevel.Types
@@ -23,15 +26,23 @@ import Clang.LowLevel.Core
 -------------------------------------------------------------------------------}
 
 withInput :: TestInput -> (CXTranslationUnit -> IO a) -> IO a
-withInput (TestInput input) onSuccess =
+withInput = withInputUsing def mempty
+
+withInputUsing ::
+     ClangArgs
+  -> BitfieldEnum CXTranslationUnit_Flags
+  -> TestInput
+  -> (CXTranslationUnit -> IO a)
+  -> IO a
+withInputUsing args flags (TestInput input) onSuccess =
     HighLevel.withUnsavedFile "test.h" input $ \file ->
     HighLevel.withIndex DisplayDiagnostics   $ \ix   ->
     HighLevel.withTranslationUnit2
       ix
       (Just "test.h")
-      def
+      args
       [file]
-      mempty
+      flags
       onFailure
       onSuccess
   where

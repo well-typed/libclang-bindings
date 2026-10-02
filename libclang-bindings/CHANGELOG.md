@@ -12,8 +12,14 @@
 * `toMulti`/`toRange` renamed to `toMultiRealPath`/`toRangeRealPath`;
   new `toMultiSourcePath`/`toRangeSourcePath` for virtual files.
 * Pretty-printing functions take `(path -> String)`.
-* `clang_tokenize` takes `(path -> Text) -> Range (SingleLoc path)`.
-* `fromSingle`/`fromRange` take `(path -> Text)`.
+* `clang_tokenize` takes a `CXSourceRange` instead of a `Range SingleLoc`, and
+  passes it to `libclang` unchanged. Thereby we avoid usage of source ranges
+  referring to in-memory files such as the Clang predefine buffer used by
+  macros defined with `-D`, for which it used to throw. A range that starts
+  inside a macro expansion is tokenized from the macro definition; see the
+  documentation of `clang_tokenize`.
+* Remove `fromSingle` and `fromRange`. They looked up the `CXFile` by path,
+  which fails for locations in buffers without one.
 * `RealPath`-producing functions carry `HasCallStack`.
 * High-level location functions such as `clang_getCursorLocation` now throw
   `ClangRealPathException` for locations in virtual files, where 0.1.0.0
