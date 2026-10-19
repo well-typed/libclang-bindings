@@ -1,5 +1,6 @@
 # `libclang-bindings`
 
+[![Hackage: libclang-bindings](https://img.shields.io/hackage/v/libclang-bindings?label=Hackage:%20libclang-bindings)](https://hackage.haskell.org/package/libclang-bindings)
 [![Build Status](https://github.com/well-typed/libclang-bindings/actions/workflows/haskell.yml/badge.svg)](https://github.com/well-typed/libclang-bindings/actions)
 [![License: BSD-3-Clause](https://img.shields.io/badge/license-BSD--3--Clause-lightgray.svg)](https://github.com/well-typed/libclang-bindings/blob/main/LICENSE)
 
