@@ -143,6 +143,16 @@ jobs:
       run: |
         echo "/usr/bin" >> "$GITHUB_PATH"
 
+    # The GHC 9.4.8 bindist hardcodes the Command Line Tools SDK in the
+    # library-dirs of its rts and ghci packages, so the linker must come from
+    # the same Command Line Tools release; Xcode's linker can fail to read a
+    # newer SDK's .tbd stubs. Must precede LLVM setup, which derives SDKROOT
+    # from the active developer directory.
+    - name: 🛠️ Use Command Line Tools on macOS (match GHC's hardcoded SDK)
+      if: runner.os == 'macOS'
+      run: |
+        echo "DEVELOPER_DIR=/Library/Developer/CommandLineTools" >> "$GITHUB_ENV"
+
     - name: 📥 Checkout
       uses: actions/checkout@v7
 
